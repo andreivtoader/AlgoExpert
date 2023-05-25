@@ -28,7 +28,7 @@ func sumOfLinkedLists(_ linkedListOne: LinkedList, _ linkedListTwo: LinkedList) 
         carry = sumOfValues / 10
         
         first = first?.next
-        second = second?.next
+        second = second.ne
     }
     
     

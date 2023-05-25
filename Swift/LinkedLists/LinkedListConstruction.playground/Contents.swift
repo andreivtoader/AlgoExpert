@@ -22,153 +22,122 @@ class DoublyLinkedList {
     }
 
     func containsNodeWithValue(value: Int) -> Bool {
-        if head == nil {
-            return false
+        var node = head
+        while node !== nil, node?.value != value {
+            node = node?.next
         }
-        var current: Node? = head
-        while current != nil {
-            if current!.value == value {
-                return true
-            }
-            current = current!.next
-        }
-        
-        return false
+        return node !== nil
     }
 
     func remove(node: Node) {
-        if head == nil {
-            return
+        if node === head {
+            head = head?.next
         }
         
-        if head!.value == node.value {
-            head?.next = nil
-            head?.previous = nil
-            setTail(node: head!)
+        if node === tail {
+            tail = tail?.previous
         }
         
-        var current: Node? = head
-        while current != nil, current!.value != node.value {
-            current = current!.next
-        }
-        
-        var prevNode: Node? = current!.previous
-        var nextNode: Node? = current!.next
-        
-        if prevNode != nil, nextNode != nil {
-            prevNode?.next = nextNode
-            nextNode?.previous = prevNode
-        }
-        
-        current?.next = nil
-        current?.previous = nil
+        removeNodeBindings(node: node)
     }
 
     func removeNodesWithValue(value: Int) {
-        var current: Node? = head
-        
-        while current != nil {
-            print("Current: \(current!.value)")
-            var buffer = current!
-            current = current!.next
-            if buffer.value == value {
-                remove(node: buffer)
+        var node = head
+        while node !== nil {
+            let nodeToRemove = node
+            node = node?.next
+            
+            if nodeToRemove?.value == value {
+                remove(node: nodeToRemove!)
             }
         }
     }
 
     func insertBefore(node: Node, nodeToInsert: Node) {
-        if head == nil {
-            setHead(node: nodeToInsert)
-            setTail(node: nodeToInsert)
+        if nodeToInsert === head, nodeToInsert === tail {
             return
         }
         
-        if node.value == head!.value {
-            head!.previous = nodeToInsert
-            nodeToInsert.next = head
-            setHead(node: nodeToInsert)
-            setTail(node: head!)
-            return
-        }
+        remove(node: nodeToInsert)
+        nodeToInsert.previous = node.previous
+        nodeToInsert.next = node
         
-        var current: Node? = head
-        
-        while current != nil, current!.value != node.value {
-            current = current!.next
-        }
-        
-        var previous: Node? = current!.previous
-        if previous == nil {
+        if node.previous == nil {
             head = nodeToInsert
+        } else {
+            node.previous?.next = nodeToInsert
         }
-        else{
-            current!.previous = nodeToInsert
-            previous!.next = nodeToInsert
-            nodeToInsert.previous = previous
-            nodeToInsert.next = current
-        }
+        node.previous = nodeToInsert
     }
 
     func insertAfter(node: Node, nodeToInsert: Node) {
-        if head == nil {
-            setHead(node: nodeToInsert)
-            setTail(node: nodeToInsert)
+        if nodeToInsert === head, nodeToInsert === tail {
             return
         }
         
-        if node.value == head!.value {
-            head!.next = nodeToInsert
-            nodeToInsert.previous = head
-            setHead(node: head!)
-            setTail(node: nodeToInsert)
-            return
-        }
+        remove(node: nodeToInsert)
+        nodeToInsert.previous = node
+        nodeToInsert.next = node.next
         
-        var current: Node? = head
-        
-        while current != nil, current!.value != node.value {
-            current = current!.next
-        }
-        
-        var nextNode: Node? = current?.next
-        
-        if nextNode == nil {
+        if node.next == nil {
             tail = nodeToInsert
         } else {
-            current!.next = nodeToInsert
-            nextNode?.previous = nodeToInsert
-            nodeToInsert.next = nextNode
-            nodeToInsert.previous = current
+            node.next?.previous = nodeToInsert
         }
+        
+        node.next = nodeToInsert
     }
 
     func setHead(node: Node) {
-        head = node
-    }
-
-    func setTail(node: Node) {
-        tail = node
-    }
-
-    func insertAtPosition(position: Int, nodeToInsert: Node) {
         if head == nil {
-            setHead(node: nodeToInsert)
-            setTail(node: nodeToInsert)
+            head = node
+            tail = node
             return
         }
         
-        var index = 0
-        var current: Node? = head
-        
-        while current != nil, index <= position {
-            if index == position {
-                insertBefore(node: current!, nodeToInsert: nodeToInsert)
-                return
-            }
-            current = current!.next
-            index += 1
+        insertBefore(node: head!, nodeToInsert: node)
+    }
+
+    func setTail(node: Node) {
+        if tail == nil {
+            setHead(node: node)
+            return
         }
+        insertAfter(node: tail!, nodeToInsert: node)
+    }
+
+    func insertAtPosition(position: Int, nodeToInsert: Node) {
+        if position == 1 {
+            setHead(node: nodeToInsert)
+            return
+        }
+        
+        var node = head
+        var currentPosition = 1
+        
+        while node !== nil, currentPosition != position {
+            node = node?.next
+            currentPosition += 1
+        }
+        
+        if node !== nil {
+            insertBefore(node: node!, nodeToInsert: nodeToInsert)
+        } else {
+            setTail(node: nodeToInsert)
+        }
+    }
+    
+    func removeNodeBindings(node: Node) {
+        if let previous = node.previous {
+            previous.next = node.next
+        }
+        
+        if let next = node.next {
+            next.previous = node.previous
+        }
+        
+        node.previous = nil
+        node.next = nil
     }
     
     func printList() {
